@@ -12,7 +12,7 @@ args["log"]
 args["help"]
 const port = args.port || 5555
 const debug = args.debug || false
-const log = args.log && true
+const log = args.log
 const help = (`
 server.js [options]
 
