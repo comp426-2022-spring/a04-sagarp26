@@ -41,7 +41,7 @@ if (args.help || args.h) {
 
 if (debug) {
   app.get("/app/log/access/", (req, res) => {
-    const stmt = logdb.prepare("SELECT * FROM accesslog").all()
+    const stmt = logdb.prepare("SELECT * FROM accesslogs").all()
     res.status(200).json(stmt)
   })
 
