@@ -12,7 +12,7 @@ args["log"]
 args["help"]
 const port = args.port || 5555
 const debug = args.debug || false
-const log = args.log
+const log = args.log || true
 const help = (`
 server.js [options]
 
@@ -98,11 +98,11 @@ if (log) {
   const WRITESTREAM = fs.createWriteStream("access.log", {flags: 'a'})
   app.use(morgan("combined", {stream: WRITESTREAM}))
 }
-
+/*
 app.use(function(req, res) {
   res.status(404).send("404 NOT FOUND")
 })
-
+*/
 function coinFlip() {
   let x = Math.floor(Math.random() * 2)
   var result = ""
