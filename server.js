@@ -12,7 +12,7 @@ args["log"]
 args["help"]
 const port = args.port || 5555
 const debug = args.debug || false
-const log = args.log || true
+const log = args.log
 const help = (`
 server.js [options]
 
@@ -78,31 +78,31 @@ app.get("/app/flip/call/tails/", (req, res) => {
 
 app.use((req, res, next) => {
   let logdata = {
-    remoteaddr: req.iq,
-    remoteuser: req.user,
-    time: Date.now(),
-    method: req.method,
-    url: req.url,
-    protocol: req.protocol,
-    httpversion: req.httpVersion,
-    status: res.statusCode,
-    referer: req.headers['referer'],
-    useragent: req.headers['user-agent']
+    remoteaddr: req.iq || null,
+    remoteuser: req.user || null,
+    time: Date.now() || null,
+    method: req.method || null,
+    url: req.url || null,
+    protocol: req.protocol || null,
+    httpversion: req.httpVersion || null,
+    status: res.statusCode || null,
+    referer: req.headers['referer'] || null,
+    useragent: req.headers['user-agent'] || null
   }
-  const stmt = db.prepare("INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+  const stmt = db.prepare(`INSERT INTO accesslogs (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
   const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   next()
 })
 
-if (log) {
+if (log == true) {
   const WRITESTREAM = fs.createWriteStream("access.log", {flags: 'a'})
   app.use(morgan("combined", {stream: WRITESTREAM}))
 }
-/*
+
 app.use(function(req, res) {
   res.status(404).send("404 NOT FOUND")
 })
-*/
+
 function coinFlip() {
   let x = Math.floor(Math.random() * 2)
   var result = ""
