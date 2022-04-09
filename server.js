@@ -2,7 +2,7 @@ const express = require("express")
 const { exit } = require("process")
 const app = express()
 const fs = require("fs")
-const logdb = require("./database.js")
+const db = require("./database.js")
 const morgan = require("morgan")
 
 const args = require("minimist")(process.argv.slice(2))
@@ -30,12 +30,12 @@ if (args.help || args.h) {
 }
 
 if (args.debug) {
-  app.get("/app/log/access/", (req, res) => {
-    const stmt = logdb.prepare("SELECT * FROM accesslog").all()
+  app.get("/app/log/access", (req, res) => {
+    const stmt = db.prepare("SELECT * FROM accesslog").all()
     res.status(200).json(stmt)
   })
 
-  app.get("/app/error/", (req, res) => {
+  app.get("/app/error", (req, res) => {
     throw new Error("Error test successful.")
   })
 }
@@ -79,7 +79,7 @@ app.use((req, res, next) => {
     referer: req.headers['referer'],
     useragent: req.headers['user-agent']
   }
-  const stmt = logdb.prepare("INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+  const stmt = db.prepare("INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
   const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   next()
 })
