@@ -10,23 +10,19 @@ args["port"]
 args["debug"]
 args["log"]
 args["help"]
-const port = args.port
-const debug = args.debug
+const port = args.port || 5555
+const debug = args.debug || false
 const log = args.log
 const help = (`
 server.js [options]
-
 --port  Set the port number for the server to lister on. Must be an interger
             between 1 and 65535.
-
 --debug If set to true, creates endpoints /app/log/access/ which returns
             a JSON access log from the database and /app/error/ which throws
             an error with the message "Error test successful." Defaults to
             false.
-
 --log           If set to false, no log files are written. Defaults to true.
             Logs are always written to database.
-
 --help  Return this message and exit.
 `)
 
@@ -89,12 +85,12 @@ app.use((req, res, next) => {
     referer: req.headers['referer'],
     useragent: req.headers['user-agent']
   }
-  const stmt = logdb.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  const stmt = logdb.prepare("INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
   const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   next()
 })
 
-if (log == true) {
+if (log) {
   const WRITESTREAM = fs.createWriteStream("access.log", {flags: 'a'})
   app.use(morgan("combined", {stream: WRITESTREAM}))
 }
