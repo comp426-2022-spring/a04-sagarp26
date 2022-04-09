@@ -10,8 +10,8 @@ args["port"]
 args["debug"]
 args["log"]
 args["help"]
-const port = args.port || 5555
-const debug = args.debug || false
+const port = args.port
+const debug = args.debug
 const log = args.log
 const help = (`
 server.js [options]
@@ -41,7 +41,7 @@ if (args.help || args.h) {
 
 if (debug) {
   app.get("/app/log/access/", (req, res) => {
-    const stmt = logdb.prepare("SELECT * FROM accesslogs").all()
+    const stmt = logdb.prepare("SELECT * FROM accesslog").all()
     res.status(200).json(stmt)
   })
 
@@ -78,18 +78,18 @@ app.get("/app/flip/call/tails/", (req, res) => {
 
 app.use((req, res, next) => {
   let logdata = {
-    remoteaddr: req.iq || null,
-    remoteuser: req.user || null,
-    time: Date.now() || null,
-    method: req.method || null,
-    url: req.url || null,
-    protocol: req.protocol || null,
-    httpversion: req.httpVersion || null,
-    status: res.statusCode || null,
-    referer: req.headers['referer'] || null,
-    useragent: req.headers['user-agent'] || null
+    remoteaddr: req.iq,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    status: res.statusCode,
+    referer: req.headers['referer'],
+    useragent: req.headers['user-agent']
   }
-  const stmt = db.prepare(`INSERT INTO accesslogs (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  const stmt = logdb.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
   const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   next()
 })
