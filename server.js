@@ -1,12 +1,11 @@
 const express = require("express")
-const { exit } = require("process")
 const app = express()
 const fs = require("fs")
 const db = require("./database.js")
 const morgan = require("morgan")
 
 const args = require("minimist")(process.argv.slice(2))
-const port = args.port || 5000
+const port = args.port || process.env.PORT || 5555
 const help = (`
 server.js [options]
 --port  Set the port number for the server to lister on. Must be an interger
@@ -26,7 +25,7 @@ const server = app.listen(port, () => {
 
 if (args.help || args.h) {
   console.log(help)
-  exit(0)
+  process.exit(0)
 }
 
 if (args.debug) {
@@ -84,9 +83,7 @@ app.use((req, res, next) => {
   next()
 })
 
-if (args.log == false) {
-}
-else {
+if (args.log != false) {
   const WRITESTREAM = fs.createWriteStream("access.log", {flags: 'a'})
   app.use(morgan("combined", {stream: WRITESTREAM}))
 }
